@@ -5,17 +5,17 @@
 trigger:
  paths:
    include:
-     - worker/*
+     - worker/**
 
 resources:
 - repo: self
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: ''
+  dockerRegistryServiceConnection: '4c745645-c5f4-488a-a63c-ed2949402c01'
   imageRepository: 'workerapp'
-  containerRegistry: 'YOURREPO.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/result/Dockerfile'
+  containerRegistry: 'mhr993.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/worker/Dockerfile'
   tag: '$(Build.BuildId)'
   
   #Variables availabe at DockerFile
@@ -57,3 +57,13 @@ stages:
         repository: '$(imageRepository)'
         command: 'push'
         tags: '$(tag)'
+- stage: Update
+  displayName: Update K8s Manifest
+  jobs:
+  - job: Update
+    displayName: Update
+    steps:
+    - task: ShellScript@2
+      inputs:
+        scriptPath: 'scripts/k8s-manifest-update.sh'
+        args: 'worker $(imageRepository) $(tag) $(ACCESS_TOKEN)'

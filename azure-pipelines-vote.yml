@@ -12,10 +12,10 @@ resources:
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: ''
+  dockerRegistryServiceConnection: 'b363b78f-d646-4741-9ae4-168d63f9d947'
   imageRepository: 'votingapp'
-  containerRegistry: 'YOURREPO.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/result/Dockerfile'
+  containerRegistry: 'mhr993.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/vote/Dockerfile'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
@@ -41,3 +41,17 @@ stages:
           $(tag)
     - script: docker images
       displayName: List Docker Images
+- stage: Update
+  displayName: Update K8s Manifest
+  jobs:
+  - job: Update
+    displayName: Update
+    steps:
+    - task: ShellScript@2
+      inputs:
+        scriptPath: 'scripts/k8s-manifest-update.sh'
+        args: 'vote $(imageRepository) $(tag) $(ACCESS_TOKEN)'
+
+
+
+
